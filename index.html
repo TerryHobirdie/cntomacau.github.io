@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文本转换工具</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/opencc-js@1.0.4"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>文本转换工具</h1>
+        <div class="form-group">
+            <label for="inputText">输入文本：</label>
+            <textarea id="inputText" rows="5" class="full-width"></textarea>
+        </div>
+        <div class="form-group radio-group">
+            <input type="radio" id="toSimplified" name="conversionType" value="toSimplified">
+            <label for="toSimplified">繁轉簡</label>
+            <input type="radio" id="toTraditional" name="conversionType" value="toTraditional">
+            <label for="toTraditional">簡轉繁</label>
+        </div>
+        <div class="form-group">
+            <button id="convertButton">開始轉換</button>
+        </div>
+        <div id="result" class="result">
+            <h2>转换结果：</h2>
+            <p id="outputText"></p>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('convertButton').addEventListener('click', handleConversion);
+
+        async function handleConversion() {
+            const inputText = document.getElementById('inputText').value;
+            const conversionType = document.querySelector('input[name="conversionType"]:checked').value;
+
+            let converter;
+            try {
+                if (conversionType === 'toSimplified') {
+                    converter = OpenCC.Converter({ from: 'hk', to: 'cn' });
+                    document.body.classList.add('traditional-to-simplified');
+                    document.body.classList.remove('simplified-to-traditional');
+                } else if (conversionType === 'toTraditional') {
+                    converter = OpenCC.Converter({ from: 'cn', to: 'hk' });
+                    document.body.classList.add('simplified-to-traditional');
+                    document.body.classList.remove('traditional-to-simplified');
+                }
+
+                if (converter) {
+                    const outputText = await converter(inputText);
+                    document.getElementById('outputText').innerText = outputText;
+                } else {
+                    throw new Error('未選擇轉換類型');
+                }
+            } catch (error) {
+                console.error('转换错误:', error);
+                alert('转换过程中发生错误，请检查输入文本。');
+            }
+        }
+    </script>
+</body>
+</html>
